@@ -25,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/authenticate").permitAll()
+                        auth.requestMatchers("/h2-console/**", "/generate-token").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(withDefaults());
 
@@ -34,7 +34,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
+        return new CustomUserDetailsService(passwordEncoder());
     }
 
     @Bean

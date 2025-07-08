@@ -1,21 +1,33 @@
 package com.secuirty.jwt.service;
 
-import com.secuirty.jwt.repository.UserDetailsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserDetailsRepository userDetailsRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDetailsRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
+        if ("admin".equals(username)) {
+            return User.builder()
+                    .username("admin")
+                    .password(passwordEncoder.encode("admin"))
+                    .roles("ADMIN")
+                    .build();
+        } else {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
     }
 }
